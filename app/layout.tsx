@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Frontend Joe - Portfolio",
+  title: "Frontend Diego Berrio - Portfolio",
   description: "Frontend Developer Portfolio - Building aesthetic software to an extremely high standard",
 };
 
