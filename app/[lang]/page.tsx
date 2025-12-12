@@ -1,11 +1,10 @@
-// 📁 src/app/page.tsx (SOLUCIÓN 100% SILENCIOSA)
+// 📁 src/app/[lang]/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import HeroSection from '@/components/sections/HeroSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
-import ProductsSection from '@/components/sections/ProductsSection';
 import Footer from '@/components/layout/Footer';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -25,35 +24,27 @@ const generateParticles = (count: number): Particle[] => {
     }));
 };
 
-export default function Home() {
-    const theme = useTheme();
+export default function Home({ params }: { params: { lang: string } }) {
+    const theme = useTheme(true, 'purple', params.lang);
     const { darkMode, currentColor } = theme;
 
-    // 1. Bandera de Cliente (Inicializada en false para SSR)
     const [isClient, setIsClient] = useState(false);
 
-    // 2. Partículas: Generadas condicionalmente con useMemo
     const particles = React.useMemo(() => {
-        if (!isClient) return []; // Retorna vacío en SSR (sin Math.random())
-        return generateParticles(15); // Genera SÓLO en el cliente (una vez)
-    }, [isClient]); 
+        if (!isClient) return [];
+        return generateParticles(15);
+    }, [isClient]);
 
-    // 3. EFECTO CRÍTICO: Activa la bandera isClient con un retraso (setTimeout)
     useEffect(() => {
-        // La clave para silenciar el warning: Envuelve el setState en un timeout de 0ms.
-        // Esto asegura que la actualización del estado ocurre en el siguiente ciclo de eventos,
-        // después de que el montaje (y la hidratación) hayan terminado,
-        // lo que React considera aceptable para sincronización.
         const timer = setTimeout(() => {
             setIsClient(true);
         }, 0);
 
-        return () => clearTimeout(timer); // Limpieza necesaria para el timer
-    }, []); 
+        return () => clearTimeout(timer);
+    }, []);
 
-    // 4. Lógica del Scroll de la Navbar
     const [scrolled, setScrolled] = useState(false);
-    
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
@@ -67,7 +58,6 @@ export default function Home() {
             backgroundColor: darkMode ? '#0a0a0a' : '#f9fafb',
             color: darkMode ? '#ededed' : '#111827'
         }}>
-            {/* Las partículas se renderizarán solo si isClient es true */}
             {particles.map((particle, i) => (
                 <div
                     key={i}
@@ -81,17 +71,13 @@ export default function Home() {
                 />
             ))}
 
-            {/* Navbar (extraído) */}
             <Navbar theme={theme} scrolled={scrolled} />
 
-            {/* Secciones (extraídas) */}
             <>
                 <HeroSection theme={theme} />
                 <ProjectsSection theme={theme} />
-                {/* <ProductsSection theme={theme} /> */}
             </>
 
-            {/* Footer (extraído) */}
             <Footer theme={theme} />
         </div>
     );

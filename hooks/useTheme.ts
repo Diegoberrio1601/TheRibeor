@@ -1,16 +1,11 @@
-// 📁 src/hooks/useTheme.ts (CORREGIDO)
+// 📁 src/hooks/useTheme.ts (ACTUALIZADO CON SOPORTE DE URL)
 
 import { useState, useEffect, useMemo } from 'react';
-// Importamos solo 'colors' y 'LanguageKey' desde constants
-import { colors, LanguageKey } from '@/lib/constants'; 
+import { useRouter, usePathname } from 'next/navigation';
+import { colors, LanguageKey } from '@/lib/constants';
 
-// 1. Derivamos el tipo ColorSchemes (el objeto completo de colores)
 type ColorSchemes = typeof colors;
-
-// 2. Derivamos el tipo ColorSchemeName (las llaves: 'purple', 'blue', etc.)
 type ColorSchemeName = keyof ColorSchemes;
-
-// 3. Derivamos el tipo ColorSchemesItem (el valor: { primary: string, text: string, ... })
 type ColorSchemesItem = ColorSchemes[ColorSchemeName];
 
 interface UseThemeReturn {
@@ -20,18 +15,56 @@ interface UseThemeReturn {
   setColorScheme: (scheme: ColorSchemeName) => void;
   language: LanguageKey;
   setLanguage: (lang: LanguageKey) => void;
-  // Usamos el tipo derivado ColorSchemesItem aquí:
   currentColor: ColorSchemesItem;
 }
 
-/**
- * Hook personalizado para manejar el tema, el esquema de color y el idioma.
- * Se encarga de manipular el DOM para el Dark Mode.
- */
-export function useTheme(initialDarkMode = true, initialColorScheme: ColorSchemeName = 'purple', initialLanguage: LanguageKey = 'en'): UseThemeReturn {
+export function useTheme(
+  initialDarkMode = true,
+  initialColorScheme: ColorSchemeName = 'purple',
+  urlLang?: string
+): UseThemeReturn {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Determinar el idioma inicial desde la URL o el parámetro
+  const getInitialLanguage = (): LanguageKey => {
+    if (urlLang && (urlLang === 'es' || urlLang === 'en')) {
+      return urlLang as LanguageKey;
+    }
+    // Extraer del pathname si está disponible
+    const pathLang = pathname?.split('/')[1];
+    if (pathLang === 'es' || pathLang === 'en') {
+      return pathLang;
+    }
+    return 'en';
+  };
+
   const [darkMode, setDarkMode] = useState(initialDarkMode);
   const [colorScheme, setColorScheme] = useState(initialColorScheme);
-  const [language, setLanguage] = useState<LanguageKey>(initialLanguage);
+  const [language, setLanguage] = useState<LanguageKey>(getInitialLanguage);
+
+  // Sincronizar el idioma con la URL
+  useEffect(() => {
+    if (urlLang && (urlLang === 'es' || urlLang === 'en')) {
+      setLanguage(urlLang as LanguageKey);
+    }
+  }, [urlLang]);
+
+  // Cambiar idioma y actualizar URL
+  const handleSetLanguage = (lang: LanguageKey) => {
+    setLanguage(lang);
+    
+    // Cambiar la URL al nuevo idioma
+    if (pathname) {
+      const segments = pathname.split('/');
+      segments[1] = lang; // Reemplazar el segmento del idioma
+      const newPath = segments.join('/');
+      router.push(newPath);
+    }
+
+    // Guardar en cookie
+    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+  };
 
   // Inicializar y actualizar el tema en el DOM
   useEffect(() => {
@@ -51,15 +84,12 @@ export function useTheme(initialDarkMode = true, initialColorScheme: ColorScheme
       body.style.background = '#f9fafb';
       body.style.color = '#111827';
     }
-    
-    // Almacenar en localStorage para persistencia
+
     localStorage.setItem('darkMode', String(darkMode));
   }, [darkMode]);
 
-  // Obtener el esquema de color actual de manera eficiente
   const currentColor = useMemo(() => {
-    // TypeScript ahora sabe que colorScheme es una llave válida de colors
-    return colors[colorScheme]; 
+    return colors[colorScheme];
   }, [colorScheme]);
 
   return {
@@ -68,7 +98,7 @@ export function useTheme(initialDarkMode = true, initialColorScheme: ColorScheme
     colorScheme,
     setColorScheme,
     language,
-    setLanguage,
+    setLanguage: handleSetLanguage,
     currentColor,
   };
 }
