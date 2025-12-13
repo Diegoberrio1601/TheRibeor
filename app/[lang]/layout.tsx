@@ -1,38 +1,14 @@
-// // 📁 src/app/[lang]/layout.tsx (VERSIÓN LIMPIA CON HELPER)
-// import React from 'react';
-// import type { Metadata } from 'next';
-// import { generateMetadataByLang } from '@/lib/metadata';
-
-// export async function generateStaticParams() {
-//   return [{ lang: 'en' }, { lang: 'es' }];
-// }
-
-// export async function generateMetadata({
-//   params,
-// }: {
-//   params: { lang: string };
-// }): Promise<Metadata> {
-//   return generateMetadataByLang(params.lang);
-// }
-
-// export default function LangLayout({
-//   children,
-//   params,
-// }: {
-//   children: React.ReactNode;
-//   params: { lang: string };
-// }) {
-//   return (
-//     <div lang={params.lang}>
-//       {children}
-//     </div>
-//   );
-// }
-
-// 📁 src/app/[lang]/layout.tsx
+// 📁 app/[lang]/layout.tsx
 import React from 'react';
 import type { Metadata } from 'next';
+import { Inter } from "next/font/google";
 import { generateMetadataByLang } from '@/lib/metadata';
+import "../globals.css";
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'es' }];
@@ -47,7 +23,7 @@ export async function generateMetadata({
   return generateMetadataByLang(lang);
 }
 
-export default async function LangLayout({
+export default async function RootLayout({
   children,
   params,
 }: {
@@ -55,10 +31,12 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-
+  
   return (
-    <div lang={lang}>
-      {children}
-    </div>
+    <html lang={lang} suppressHydrationWarning>
+      <body className={inter.className}>
+        {children}
+      </body>
+    </html>
   );
 }
