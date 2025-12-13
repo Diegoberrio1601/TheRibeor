@@ -71,7 +71,7 @@ export default function Navbar({ theme, scrolled }: NavbarProps) {
 
                     {/* LinkedIn */}
                     <a
-                        href="https://linkedin.com"
+                        href="https://www.linkedin.com/in/diegoberrio1601/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`p-2 transition-all hover:scale-110 ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
