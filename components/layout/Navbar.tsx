@@ -15,6 +15,7 @@ export default function Navbar({ theme, scrolled }: NavbarProps) {
     const [showSettings, setShowSettings] = useState(false);
     const { darkMode, currentColor } = theme;
 
+    
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-40 px-4 md:px-6 py-3 md:py-4 transition-all duration-300 ${scrolled
