@@ -9,6 +9,7 @@ export interface Repository {
   stargazers_count: number;
   forks_count: number;
   language: string | null;
+  homepage: string | null;
   topics: string[];
   private?: boolean;
 }
@@ -16,6 +17,7 @@ export interface Repository {
 /** Define la estructura de las propiedades de un esquema de color */
 export interface ColorScheme {
   primary: string;
+  secondary: string;
   text: string;
   textDark: string;
   bg: string;
